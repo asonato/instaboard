@@ -1,0 +1,4 @@
+# Nixpacks configuration for Dokploy
+# Ensures Node.js 22 LTS is used when build type is Nixpacks
+[phases.setup]
+nixPkgs = ["nodejs_22"]
