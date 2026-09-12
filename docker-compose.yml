@@ -13,5 +13,4 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      # Set this to your actual public domain or server IP for accurate QR codes and sync links
-      # Example: - BASE_URL=https://instaboard.yourdomain.com
+      - BASE_URL=https://insta.asonato.com

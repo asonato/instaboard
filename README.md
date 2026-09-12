@@ -181,14 +181,14 @@ Dokploy is ideal for this project because Traefik handles SSL certificates, reve
      ```env
      PORT=3000
      NODE_ENV=production
-     BASE_URL=https://instaboard.yourdomain.com
+     BASE_URL=https://insta.asonato.com
      ```
    - *(Setting `BASE_URL` to your actual domain guarantees that scannable QR codes and share links point to your live HTTPS domain).*
 
 6. **Traefik Domain & HTTPS (SSL)**:
    - Go to the **Domains** tab in your Dokploy application.
    - Click **Add Domain**:
-     - **Host**: `instaboard.yourdomain.com`
+     - **Host**: `insta.asonato.com`
      - **Path**: `/`
      - **Container Port**: `3000`
      - **HTTPS**: Checked (Traefik will automatically issue a free Let's Encrypt SSL certificate).
@@ -204,16 +204,16 @@ The easiest and most reliable way to run on any Linux VPS (Ubuntu, Debian, etc.)
 
 1. **Clone your repository on your server**:
    ```bash
-   git clone https://github.com/<YOUR_GITHUB_USERNAME>/instaboard.git
+   git clone https://github.com/asonato/instaboard.git
    cd instaboard
    ```
 
-2. **Configure your domain in `docker-compose.yml`** (optional but recommended for QR sync codes):
+2. **Domain is pre-configured in `docker-compose.yml`**:
    ```yaml
    environment:
      - NODE_ENV=production
      - PORT=3000
-     - BASE_URL=https://instaboard.yourdomain.com
+     - BASE_URL=https://insta.asonato.com
    ```
 
 3. **Start the container**:
@@ -224,7 +224,7 @@ The easiest and most reliable way to run on any Linux VPS (Ubuntu, Debian, etc.)
 
 ---
 
-### Option B: Deploy with PM2 & Node.js Directly
+### Option C: Deploy with PM2 & Node.js Directly
 
 If running on Ubuntu/Debian VPS without Docker:
 
@@ -240,7 +240,7 @@ If running on Ubuntu/Debian VPS without Docker:
 
 2. **Clone and install dependencies**:
    ```bash
-   git clone https://github.com/<YOUR_GITHUB_USERNAME>/instaboard.git
+   git clone https://github.com/asonato/instaboard.git
    cd instaboard
    npm install --omit=dev
    ```
@@ -277,8 +277,8 @@ To expose Instaboard securely on your custom domain with free Let's Encrypt SSL:
 
 3. **Obtain Free SSL Certificate**:
    ```bash
-   sudo certbot --nginx -d instaboard.yourdomain.com
+   sudo certbot --nginx -d insta.asonato.com
    sudo systemctl reload nginx
    ```
 
-Done! Your Instaboard dashboard will now be live at `https://instaboard.yourdomain.com` with live cross-device sync and automatic SSL encryption.
+Done! Your Instaboard dashboard will now be live at `https://insta.asonato.com` with live cross-device sync and automatic SSL encryption.
