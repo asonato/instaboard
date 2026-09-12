@@ -18,8 +18,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Trust reverse proxies (e.g. Nginx, Cloudflare, Traefik, Caddy)
-app.set('trust proxy', 1);
+// Trust reverse proxies (Traefik, Dokploy, Nginx, Cloudflare)
+app.set('trust proxy', true);
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
