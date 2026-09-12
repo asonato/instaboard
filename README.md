@@ -151,7 +151,54 @@ npm test
 
 Instaboard is designed to be self-hosted with zero complex external dependencies (uses Node's native `node:sqlite`).
 
-### Option A: Deploy with Docker Compose (Recommended)
+### Option A: Deploy with Dokploy (Traefik) 🚀
+
+Dokploy is ideal for this project because Traefik handles SSL certificates, reverse proxying, and WebSocket/HTTP connections automatically without any body size limits.
+
+1. **Create Application in Dokploy**:
+   - Go to your Dokploy Dashboard -> **Projects** -> Select or Create a Project.
+   - Click **Create Service** -> **Application**.
+   - Select **GitHub** (or **Git**) and point to your repository (`https://github.com/asonato/instaboard`).
+   - Branch: `main`.
+
+2. **Build Configuration**:
+   - **Build Type**: `Dockerfile`
+   - **Dockerfile Path**: `/Dockerfile` (default)
+
+3. **Port & Networking**:
+   - In the **General** tab, set **Port** to: `3000`.
+
+4. **Persistent Storage (Crucial for SQLite)**:
+   - In Dokploy, go to the **Mounts / Volumes** tab.
+   - Click **Add Mount**:
+     - **Mount Type**: `Volume` (or `Bind Mount`)
+     - **Host / Volume Name**: `instaboard-data`
+     - **Mount Path (Container Path)**: `/app/data`
+   - *This ensures your sessions and completed tracking persist across redeployments.*
+
+5. **Environment Variables**:
+   - Go to the **Environment** tab and add:
+     ```env
+     PORT=3000
+     NODE_ENV=production
+     BASE_URL=https://instaboard.yourdomain.com
+     ```
+   - *(Setting `BASE_URL` to your actual domain guarantees that scannable QR codes and share links point to your live HTTPS domain).*
+
+6. **Traefik Domain & HTTPS (SSL)**:
+   - Go to the **Domains** tab in your Dokploy application.
+   - Click **Add Domain**:
+     - **Host**: `instaboard.yourdomain.com`
+     - **Path**: `/`
+     - **Container Port**: `3000`
+     - **HTTPS**: Checked (Traefik will automatically issue a free Let's Encrypt SSL certificate).
+
+7. **Deploy**:
+   - Click **Deploy**! Dokploy will build the image, mount the SQLite volume, and Traefik will route traffic with instant HTTPS.
+
+---
+
+### Option B: Deploy with Docker Compose
 
 The easiest and most reliable way to run on any Linux VPS (Ubuntu, Debian, etc.):
 
