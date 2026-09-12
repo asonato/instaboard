@@ -1,0 +1,27 @@
+{
+  "name": "instaboard",
+  "version": "1.0.0",
+  "description": "Interactive Instagram Non-Followers dashboard with cross-device sync and safety pacing.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/test-parser.js"
+  },
+  "keywords": [
+    "instagram",
+    "unfollowers",
+    "dashboard",
+    "sync",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jszip": "^3.10.2",
+    "qrcode": "^1.5.4"
+  }
+}

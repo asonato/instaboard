@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  instaboard:
+    build: .
+    container_name: instaboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist SQLite database across container restarts
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Set this to your actual public domain or server IP for accurate QR codes and sync links
+      # Example: - BASE_URL=https://instaboard.yourdomain.com

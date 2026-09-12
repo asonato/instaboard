@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instaboard — Instagram Non-Followers Tracker & Pacer</title>
+  <meta name="description" content="Local, interactive dashboard to detect Instagram accounts that don't follow back, with cross-device sync and safe action pacing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="top-nav">
+      <div class="brand-group">
+        <div class="brand-logo">
+          <svg class="insta-gradient-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Instaboard</h1>
+          <span class="badge-subtle">Non-Followers & Safe Pacer</span>
+        </div>
+      </div>
+
+      <!-- Cross-Device Sync Status Bar -->
+      <div class="sync-actions" id="syncActionsBar">
+        <div class="sync-pill" id="activeSyncBadge" title="Cross-device Sync Session">
+          <span class="sync-dot"></span>
+          <span class="sync-label">Session:</span>
+          <strong id="displaySyncCode" class="mono">LOCAL</strong>
+        </div>
+        <button id="btnOpenPairModal" class="btn btn-secondary btn-sm" title="Pair Phone / Show QR Code">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Pair Device
+        </button>
+        <button id="btnLoadDemoTop" class="btn btn-ghost btn-sm" title="Load sample Instagram export data">
+          Load Demo
+        </button>
+      </div>
+    </header>
+
+    <!-- Instagram Safety Warning & Hourly Pace Tracker -->
+    <section class="safety-banner" id="safetyBanner">
+      <div class="safety-content">
+        <div class="safety-icon-wrapper">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
+        </div>
+        <div class="safety-text">
+          <strong>Safe Unfollowing Recommendation:</strong>
+          <span>Keep your pace to a human maximum of <strong>20–30 actions per hour</strong> (with 60–120s pauses) to avoid Instagram account action limits or shadowbans.</span>
+        </div>
+      </div>
+      
+      <!-- Live Hourly Action Gauge -->
+      <div class="safety-gauge-container">
+        <div class="gauge-labels">
+          <span class="gauge-title">Actions (Last 60m):</span>
+          <span class="gauge-count mono" id="gaugeCount">0 / 25</span>
+        </div>
+        <div class="gauge-bar-track">
+          <div class="gauge-bar-fill" id="gaugeBarFill" style="width: 0%;"></div>
+        </div>
+        <div class="gauge-badge status-safe" id="gaugeStatusBadge">Safe Pace</div>
+      </div>
+    </section>
+
+    <!-- File Upload / Data Source Section -->
+    <section class="data-source-card" id="dataSourceCard">
+      <div class="section-title-row">
+        <div>
+          <h2>1. Data Source & Instagram Export</h2>
+          <p class="text-muted">Upload your downloaded Instagram export .ZIP file directly, or use individual JSON files.</p>
+        </div>
+        <button id="btnDemoData" class="btn btn-outline-gradient btn-sm">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Quick Test with Demo Data
+        </button>
+      </div>
+
+      <!-- Primary Hero ZIP Dropzone -->
+      <div class="dropzone dropzone-hero" id="dropzoneZip">
+        <input type="file" id="fileZip" accept=".zip,application/zip" class="file-input-hidden" />
+        <div class="dropzone-icon dropzone-icon-hero">
+          <svg viewBox="0 0 24 24" width="44" height="44" stroke="currentColor" stroke-width="1.8" fill="none">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="dropzone-label">
+          <strong>Upload Instagram Export .ZIP</strong>
+          <p>Drag & drop your downloaded Instagram <code class="mono">.zip</code> archive here, or click to browse</p>
+        </div>
+        <div class="file-status" id="statusZip">Supports multi-part followers exports (followers_1.json, followers_2.json)</div>
+      </div>
+
+      <!-- Collapsible Secondary Option: Individual JSON files -->
+      <details class="manual-json-toggle" id="manualJsonToggle">
+        <summary class="manual-json-summary">
+          <span>Or upload separate JSON files (following.json & followers_1.json)</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
+        <div class="upload-grid" style="margin-top: 14px;">
+          <!-- Following Upload Box -->
+          <div class="dropzone" id="dropzoneFollowing">
+            <input type="file" id="fileFollowing" accept=".json" class="file-input-hidden" />
+            <div class="dropzone-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <line x1="19" y1="8" x2="19" y2="14"></line>
+                <line x1="22" y1="11" x2="16" y2="11"></line>
+              </svg>
+            </div>
+            <div class="dropzone-label">
+              <strong>following.json</strong>
+              <p>Drag & drop or browse</p>
+            </div>
+            <div class="file-status" id="statusFollowing">Not loaded</div>
+          </div>
+
+          <!-- Followers Upload Box -->
+          <div class="dropzone" id="dropzoneFollowers">
+            <input type="file" id="fileFollowers" accept=".json" class="file-input-hidden" />
+            <div class="dropzone-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="dropzone-label">
+              <strong>followers_1.json</strong>
+              <p>Drag & drop or browse</p>
+            </div>
+            <div class="file-status" id="statusFollowers">Not loaded</div>
+          </div>
+        </div>
+
+        <!-- Action Button Row for manual JSON -->
+        <div class="data-source-footer" style="margin-top: 14px;">
+          <span class="text-sm text-muted" id="fileInfoSummary">Waiting for files...</span>
+          <button id="btnProcessFiles" class="btn btn-primary" disabled>
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Analyze Individual Files
+          </button>
+        </div>
+      </details>
+    </section>
+
+
+    <!-- Main Dashboard Section (revealed when data loaded) -->
+    <main class="dashboard-main" id="dashboardMain">
+      
+      <!-- Summary Metrics Header -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Total Following</span>
+            <span class="metric-icon-bubble">👥</span>
+          </div>
+          <div class="metric-value mono" id="valTotalFollowing">0</div>
+          <div class="metric-subtext">Accounts you follow</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Total Followers</span>
+            <span class="metric-icon-bubble">⭐</span>
+          </div>
+          <div class="metric-value mono" id="valTotalFollowers">0</div>
+          <div class="metric-subtext">Accounts following you</div>
+        </div>
+
+        <div class="metric-card highlight-metric">
+          <div class="metric-header">
+            <span class="metric-title">Non-Followers</span>
+            <span class="metric-icon-bubble danger-bubble">🚫</span>
+          </div>
+          <div class="metric-value mono highlight-text" id="valNonFollowers">0</div>
+          <div class="metric-subtext" id="valNonFollowersPct">Don't follow back</div>
+        </div>
+
+        <div class="metric-card success-metric">
+          <div class="metric-header">
+            <span class="metric-title">Completed / Processed</span>
+            <span class="metric-icon-bubble success-bubble">✅</span>
+          </div>
+          <div class="metric-value mono" id="valCompleted">0</div>
+          <div class="metric-subtext" id="valRemaining">0 remaining</div>
+        </div>
+      </section>
+
+      <!-- Overall Review Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-header">
+          <span>Review Progress</span>
+          <strong id="progressPctText" class="mono">0%</strong>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Feed Controls & Filter Bar -->
+      <section class="controls-panel">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchFilter" placeholder="Search by Instagram username... (Press / to focus)" />
+          <button id="btnClearSearch" class="btn-clear hidden" title="Clear search">✕</button>
+        </div>
+
+        <div class="filters-group">
+          <!-- Filter Tabs -->
+          <div class="filter-tabs">
+            <button class="tab-btn active" data-filter="all" id="tabAll">
+              All <span class="tab-badge" id="badgeAll">0</span>
+            </button>
+            <button class="tab-btn" data-filter="pending" id="tabPending">
+              Pending <span class="tab-badge" id="badgePending">0</span>
+            </button>
+            <button class="tab-btn" data-filter="completed" id="tabCompleted">
+              Completed <span class="tab-badge" id="badgeCompleted">0</span>
+            </button>
+          </div>
+
+          <!-- Sort Select -->
+          <div class="sort-wrapper">
+            <label for="sortSelect" class="text-xs text-muted">Sort:</label>
+            <select id="sortSelect" class="custom-select">
+              <option value="az">Username (A → Z)</option>
+              <option value="za">Username (Z → A)</option>
+              <option value="newest">Followed (Newest)</option>
+              <option value="oldest">Followed (Oldest)</option>
+            </select>
+          </div>
+
+          <!-- Quick Action: Open Next Pending -->
+          <button id="btnOpenNext" class="btn btn-primary btn-sm" title="Quickly open the next pending profile">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="5" x2="19" y2="19"></line>
+            </svg>
+            Open Next
+          </button>
+        </div>
+      </section>
+
+      <!-- Feed Utility Toolbar -->
+      <div class="feed-sub-toolbar">
+        <span class="text-sm text-muted" id="showingCountText">Showing 0 accounts</span>
+        <div class="sub-toolbar-actions">
+          <button id="btnExportCsv" class="btn btn-ghost btn-xs">
+            Export CSV
+          </button>
+          <button id="btnExportJson" class="btn btn-ghost btn-xs">
+            Export JSON
+          </button>
+          <button id="btnResetAll" class="btn btn-ghost-danger btn-xs" title="Reset all marked accounts">
+            Reset Progress
+          </button>
+        </div>
+      </div>
+
+      <!-- Accounts Feed List -->
+      <section class="feed-container" id="feedContainer">
+        <!-- Rendered dynamically -->
+      </section>
+
+      <!-- Empty State -->
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <h3>No matching accounts found</h3>
+        <p class="text-muted">Try adjusting your search query or filter tab.</p>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Device Pairing & QR Code Modal -->
+  <div class="modal-overlay hidden" id="pairModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Cross-Device Sync & Mobile Pairing</h3>
+          <p class="text-sm text-muted">Use this session on your phone or another browser with live sync.</p>
+        </div>
+        <button class="modal-close" id="btnClosePairModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- QR Code Container -->
+        <div class="qr-box">
+          <img id="qrCodeImage" alt="Sync QR Code" class="qr-image" />
+          <span class="text-xs text-muted">Scan with phone camera to open</span>
+        </div>
+
+        <!-- Sync Code Display & Copy -->
+        <div class="sync-code-box">
+          <label class="text-xs text-muted">Sync Code</label>
+          <div class="code-copy-row">
+            <span id="modalSyncCodeText" class="code-large mono">SYNC-XXXX</span>
+            <button id="btnCopyCode" class="btn btn-secondary btn-sm">Copy Code</button>
+          </div>
+        </div>
+
+        <!-- Shareable Link -->
+        <div class="sync-link-box">
+          <label class="text-xs text-muted">Direct Session Link</label>
+          <div class="input-with-button">
+            <input type="text" id="inputSyncUrl" readonly class="text-xs mono" />
+            <button id="btnCopyLink" class="btn btn-secondary btn-sm">Copy Link</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Join another session -->
+        <div class="join-session-box">
+          <label class="text-xs text-muted">Or Join Another Session Code</label>
+          <div class="input-with-button">
+            <input type="text" id="inputJoinCode" placeholder="e.g. SYNC-8291" class="mono uppercase" />
+            <button id="btnJoinCode" class="btn btn-primary btn-sm">Join</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/vendor/jszip.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
