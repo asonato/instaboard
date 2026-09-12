@@ -28,16 +28,41 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Static frontend assets
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Helper to resolve the correct, live public base URL (eliminates dummy placeholders)
+function resolveBaseUrl(req) {
+  // 1. Client origin passed from the browser (100% accurate)
+  const clientOrigin = req.body?.origin || req.query?.origin || req.get('x-client-origin');
+  if (clientOrigin && typeof clientOrigin === 'string' && clientOrigin.startsWith('http') && !clientOrigin.includes('yourdomain.com')) {
+    return clientOrigin.replace(/\/+$/, '');
+  }
+
+  // 2. Environment variable (ignore if it contains placeholder text)
+  const envUrl = (process.env.BASE_URL || process.env.PUBLIC_URL || '').trim();
+  if (envUrl && !envUrl.includes('yourdomain.com') && !envUrl.includes('example.com')) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  // 3. Reverse proxy headers (Traefik / Nginx)
+  const forwardedHost = req.get('x-forwarded-host');
+  const forwardedProto = req.get('x-forwarded-proto') || 'https';
+  if (forwardedHost && !forwardedHost.includes('yourdomain.com')) {
+    return `${forwardedProto}://${forwardedHost}`.replace(/\/+$/, '');
+  }
+
+  // 4. Standard Host header
+  const host = req.get('host');
+  const protocol = req.protocol || 'http';
+  if (host && !host.includes('yourdomain.com') && !host.includes('localhost')) {
+    return `${protocol}://${host}`.replace(/\/+$/, '');
+  }
+
+  // 5. Default fallback to real domain
+  return 'https://insta.asonato.com';
+}
+
 // Helper to generate QR code data URL for a sync link
 async function makeQrCode(syncCode, req) {
-  let baseUrl = process.env.BASE_URL || process.env.PUBLIC_URL;
-  if (!baseUrl) {
-    const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
-    const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${PORT}`;
-    baseUrl = `${protocol}://${host}`;
-  }
-  // Ensure no trailing slash
-  baseUrl = baseUrl.replace(/\/+$/, '');
+  const baseUrl = resolveBaseUrl(req);
   const syncUrl = `${baseUrl}/?sync=${syncCode}`;
   try {
     return await QRCode.toDataURL(syncUrl, {

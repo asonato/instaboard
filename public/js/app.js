@@ -425,7 +425,10 @@ async function applySession(sessionData, qrCode) {
 
 async function loadSessionFromBackend(code) {
   try {
-    const res = await fetch(`/api/sessions/${code}`);
+    const origin = window.location.origin;
+    const res = await fetch(`/api/sessions/${code}?origin=${encodeURIComponent(origin)}`, {
+      headers: { 'X-Client-Origin': origin }
+    });
     if (!res.ok) {
       throw new Error(`Session ${code} not found`);
     }
@@ -548,12 +551,16 @@ async function handleZipFile(file) {
     // Create session in backend SQLite
     const response = await fetch('/api/sessions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Origin': window.location.origin
+      },
       body: JSON.stringify({
         name: file.name.replace(/\.zip$/i, ''),
         totalFollowing: comparison.totalFollowing,
         totalFollowers: comparison.totalFollowers,
-        items: comparison.nonFollowers
+        items: comparison.nonFollowers,
+        origin: window.location.origin
       })
     });
 
@@ -654,11 +661,15 @@ async function processLoadedFiles() {
     // Create session in backend SQLite
     const response = await fetch('/api/sessions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Origin': window.location.origin
+      },
       body: JSON.stringify({
         totalFollowing: comparison.totalFollowing,
         totalFollowers: comparison.totalFollowers,
-        items: comparison.nonFollowers
+        items: comparison.nonFollowers,
+        origin: window.location.origin
       })
     });
 
